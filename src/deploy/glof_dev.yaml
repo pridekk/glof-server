@@ -3,14 +3,12 @@ Transform: 'AWS::Serverless-2016-10-31'
 Description: GLOF DEV CloudFormation
 
 Parameters:
-  # 람다 함수가 존재하는 Bucket명 정의
-  Bucket:
-    Type: String
-    Default: glof-dev
-  # 람다 함수의 버전 (Bucket의 하위에 버전별로 폴더 생성됨)
   LambdaVersion:
     Type: String
     Default: 20210730084656
+  Bucket:
+    Type: String
+    Default: glof-test
   DeployStage:
     Type: String
     Default: dev
@@ -45,6 +43,10 @@ Resources:
                   - "logs:PutLogEvents"
                 Resource:
                   - "*"
+              - Effect: Allow
+                Action:
+                  - "ssm:GetParam*"
+                Resource: "*"
   Authorizer:
     Type: 'AWS::Serverless::Function'
     Properties:
@@ -52,7 +54,7 @@ Resources:
       Runtime: python3.8
       CodeUri:
         Bucket: !Ref Bucket
-        Key: !Sub [ "lambdas/batch/${deployStage}/${deployVersion}/firebase_token.zip",{ deployStage: !Ref DeployStage,deployVersion: !Ref LambdaVersion } ]
+        Key: !Sub [ "lambdas/${deployStage}/${deployVersion}/firebase_token.zip",{ deployStage: !Ref DeployStage,deployVersion: !Ref LambdaVersion } ]
       Description: 'Firebase user Authorizer'
       MemorySize: 128
       Timeout: 10

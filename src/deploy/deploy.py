@@ -40,35 +40,25 @@ def upload_lambdas(stage, version):
         print(response)
 
 
-def update_formation(stackname: str, region: str, stage: str, version: str):
-    if stage != 'dev':
-        session = boto3.Session(profile_name='spec-prod')
-        cloud_formation = session.client("cloudformation")
-    else:
-        cloud_formation = boto3.client("cloudformation")
+def update_formation(stackname: str, stage: str, version: str, region: str):
+
+    cloud_formation = boto3.client("cloudformation", region)
 
     cloud_formation.update_stack(StackName=stackname,
-                                 TemplateURL=f"https://{config['stages'][stage]['bucket']}.s3.{region}.amazonaws.com/formations/glof_{stage}.yaml",
+                                 TemplateURL=f"https://glof-test.s3.us-east-1.amazonaws.com/formations/glof_{stage}.yaml",
                                  Parameters=[{"ParameterKey": "LambdaVersion", "ParameterValue": version},
-                                             {"ParameterKey": "DeployStage", "ParameterValue": stage},
-                                             {"ParameterKey": "Bucket",
-                                              "ParameterValue": config["stages"][stage]["bucket"]}],
+                                             {"ParameterKey": "DeployStage", "ParameterValue": stage}],
                                  Capabilities=['CAPABILITY_AUTO_EXPAND', 'CAPABILITY_NAMED_IAM', 'CAPABILITY_IAM'])
 
 
-def create_formation(stackname: str, region: str, stage: str, version: str):
-    if stage != 'dev':
-        session = boto3.Session(profile_name='spec-prod')
-        cloud_formation = session.client("cloudformation")
-    else:
-        cloud_formation = boto3.client("cloudformation")
+def create_formation(stackname: str, stage: str, version: str, region: str):
+
+    cloud_formation = boto3.client("cloudformation", region)
 
     cloud_formation.create_stack(StackName=stackname,
-                                 TemplateURL=f"https://{config['stages'][stage]['bucket']}.{region}.amazonaws.com/formations/glof_formation_{stage}.yaml",
+                                 TemplateURL=f"https://glof-test.s3.us-east-1.amazonaws.com/formations/glof_{stage}.yaml",
                                  Parameters=[{"ParameterKey": "LambdaVersion", "ParameterValue": version},
-                                             {"ParameterKey": "DeployStage", "ParameterValue": stage},
-                                             {"ParameterKey": "Bucket",
-                                              "ParameterValue": config["stages"][stage]["bucket"]}],
+                                             {"ParameterKey": "DeployStage", "ParameterValue": stage}],
                                  Capabilities=['CAPABILITY_AUTO_EXPAND', 'CAPABILITY_NAMED_IAM', 'CAPABILITY_IAM'])
 
 
@@ -77,9 +67,9 @@ config = json.load(open("config.json"))
 if __name__ == "__main__":
     version = datetime.now().strftime("%Y%m%d%H%M%S")
     # version = "20210907100330"
-    zip_lambdas(version)
-    # version = "20211108165842"
-    upload_lambdas("dev", version)
+    # zip_lambdas(version)
+    version = "20211108233723"
+    # upload_lambdas("dev", version)
     # upload_lambdas("prod", version)
-    create_formation("GLOF-DEV", "dev", version)
+    update_formation("GLOF-DEV", "dev", version, 'us-east-1')
     # create_formation("SPEC-BATCH-PROD", "prod", version)
