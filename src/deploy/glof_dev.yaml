@@ -47,7 +47,7 @@ Resources:
                 Action:
                   - "ssm:GetParam*"
                 Resource: "*"
-  Authorizer:
+  FirbaseAuthorizer:
     Type: 'AWS::Serverless::Function'
     Properties:
       Handler: handler.lambda_handler
@@ -63,3 +63,84 @@ Resources:
         Variables:
           ENV: !Ref DeployStage
           TZ: Asia/Seoul
+      Layers:
+        - !Sub [ 'arn:aws:lambda:us-east-1:${Account}:layer:py3_firebase_admin_5_1_0:1', { Account: !Ref Account } ]
+
+
+
+  GetMyAreas:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: handler.lambda_handler
+      Runtime: python3.8
+      CodeUri:
+        Bucket: !Ref Bucket
+        Key: !Sub [ "lambdas/${deployStage}/${deployVersion}/get_my_areas.zip",{ deployStage: !Ref DeployStage,deployVersion: !Ref LambdaVersion } ]
+      Description: 'Get My Areas'
+      MemorySize: 128
+      Timeout: 10
+      Role: !GetAtt GlofLambdaRole.Arn
+      Environment:
+        Variables:
+          ENV: !Ref DeployStage
+          TZ: Asia/Seoul
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /areas
+            Method: get
+            RestApiId: !Ref GlofAPI
+            RequestParameters:
+              - method.request.header.Authorization
+  PostLocations:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: handler.lambda_handler
+      Runtime: python3.8
+      CodeUri:
+        Bucket: !Ref Bucket
+        Key: !Sub [ "lambdas/${deployStage}/${deployVersion}/post_locations.zip",{ deployStage: !Ref DeployStage,deployVersion: !Ref LambdaVersion } ]
+      Description: 'Post Current Locations'
+      MemorySize: 128
+      Timeout: 10
+      Role: !GetAtt GlofLambdaRole.Arn
+      Environment:
+        Variables:
+          ENV: !Ref DeployStage
+          TZ: Asia/Seoul
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /locations
+            Method: post
+            RestApiId: !Ref GlofAPI
+            RequestParameters:
+              - method.request.header.Authorization
+  GlofAPI:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: dev
+      Name: GLOF-DEV
+      Description: "GLOF API"
+      Auth:
+        Authorizers:
+          FirebaseAuth:
+            FunctionArn: !GetAtt FirbaseAuthorizer.Arn
+        DefaultAuthorizer: FirebaseAuth
+        UsagePlan:
+          CreateUsagePlan: PER_API
+          UsagePlanName: glof_api
+          Quota:
+            Limit: 10000
+            Period: DAY
+          Throttle:
+            BurstLimit: 300
+            RateLimit: 100
+      EndpointConfiguration: REGIONAL
+      Cors:
+        AllowMethods: "'POST, GET, OPTIONS'"
+        AllowHeaders: "'X-Forwarded-For, x-api-key'"
+        AllowOrigin: "'*'"
+        MaxAge: "'600'"

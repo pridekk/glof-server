@@ -12,7 +12,7 @@ cred = credentials.Certificate(service_key)
 firebase_admin.initialize_app(cred)
 
 
-def handler(event, context):
+def lambda_handler(event, context):
     token = event['authorizationToken']
     print(f"Client token: {token}")
 
@@ -32,6 +32,7 @@ def handler(event, context):
     policy.region = tmp[3]
     policy.stage = apiGatewayArnTmp[1]
     policy.allowMethod(HttpVerb.GET, "/*")
+    policy.allowMethod(HttpVerb.POST, "/*/locations")
 
     authResponse = policy.build()
 
