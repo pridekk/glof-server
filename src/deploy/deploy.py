@@ -62,12 +62,31 @@ def create_formation(stackname: str, stage: str, version: str, region: str):
                                  Capabilities=['CAPABILITY_AUTO_EXPAND', 'CAPABILITY_NAMED_IAM', 'CAPABILITY_IAM'])
 
 
+def upload_formation(stage: str):
+    """
+    cloudformation 파일 업로드
+    @param stage: dev/staging/prod
+    @return: 업로드 결과
+    """
+
+    s3 = boto3.client("s3")
+
+    response = s3.upload_file(
+        Filename=f"glof_{stage}.yaml",
+        Bucket=config["stages"][stage]["bucket"],
+        Key=f"formations/glof_{stage}.yaml"
+    )
+    print(response)
+    return response
+
 config = json.load(open("config.json"))
 
 if __name__ == "__main__":
     version = datetime.now().strftime("%Y%m%d%H%M%S")
     # version = "20210907100330"
     zip_lambdas(version)
-    # version = "20211112004350"
+    # version = "20211227124549"
     upload_lambdas("dev", version)
+    upload_formation("dev")
     update_formation("GLOF-DEV", "dev", version, 'us-east-1')
+7

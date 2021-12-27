@@ -17,8 +17,9 @@ def lambda_handler(event, context):
     print(f"Client token: {token}")
 
     try:
-        decoded_token = auth.verify_id_token(token)
+        decoded_token = auth.verify_id_token(token.replace("Bearer ", ""))
     except Exception as e:
+        print(e)
         raise Exception("Unauthorized")
 
     principalId = decoded_token.get("user_id")
@@ -41,8 +42,6 @@ def lambda_handler(event, context):
         'number': 1,
         'bool': True
     }
-    # context['arr'] = ['foo'] <- this is invalid, APIGW will not accept it
-    # context['obj'] = {'foo':'bar'} <- also invalid
 
     authResponse['context'] = context
 
@@ -51,7 +50,7 @@ def lambda_handler(event, context):
 
 if __name__ == "__main__":
     event = {
-        "authorizationToken": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjY5NGNmYTAxOTgyMDNlMjgwN2Q4MzRkYmE2MjBlZjczZjI4ZTRlMmMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vZ2V0bGFuZG9uZm9vdCIsImF1ZCI6ImdldGxhbmRvbmZvb3QiLCJhdXRoX3RpbWUiOjE2MzY0MTIyMTAsInVzZXJfaWQiOiJFN0pxRE5CY0dPZllld3V2SjJKdTh1b2hQa3AyIiwic3ViIjoiRTdKcUROQmNHT2ZZZXd1dkoySnU4dW9oUGtwMiIsImlhdCI6MTYzNjQxMjIyNCwiZXhwIjoxNjM2NDE1ODI0LCJlbWFpbCI6InByaWRla2tAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7ImVtYWlsIjpbInByaWRla2tAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.AXbvt6N-SMHi4dYYPBUYlohqsJLFw9yUy3krWfrVaF4Rmo1kmQOc8j_CaAQDjJ4VPOdp3WP3uGp-NRjcVtH1bge5my2i7R9UjztIBuWGOOQoOOyuSOC2zOZ9OBU4m-lVH9ZIzDg1z-8SRX9RtZuUaU-9axxYobrIqnpgdqEl0muogck-4-cQPhCu-Gr_5DvZvlDPZRgO4EHBFMaLJo48QsuAN9mdo6Uns_7a66wZVt-P-Klw3MLBH9SfM2fxJUj0XlTWwrLwooTJhEmvl0aIzFD19l6HNUYyL7TQDicjasf10U23YMauIodqUrwDLw1DxVHW4GJz55bAi9VdSsgDXg",
+        "authorizationToken": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjcxMTQzNzFiMmU4NmY4MGM1YzYxNThmNDUzYzk0NTEyNmZlNzM5Y2MiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vZ2V0bGFuZG9uZm9vdCIsImF1ZCI6ImdldGxhbmRvbmZvb3QiLCJhdXRoX3RpbWUiOjE2NDA2NDM4MjksInVzZXJfaWQiOiJFN0pxRE5CY0dPZllld3V2SjJKdTh1b2hQa3AyIiwic3ViIjoiRTdKcUROQmNHT2ZZZXd1dkoySnU4dW9oUGtwMiIsImlhdCI6MTY0MDY0MzgyOSwiZXhwIjoxNjQwNjQ3NDI5LCJlbWFpbCI6InByaWRla2tAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7ImVtYWlsIjpbInByaWRla2tAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.gx_y1ihqrzEChCdnUGOdXkD981pPHyx3pY8HnL7joJT1wiIczLKUVKX8L8U5FYWw_JT4ZTAWdoi91KW7TTO_hp3xAXkKgwnmUZ7Vkdfaw-3tLh03eoTtLR0DmBkf9-qTdUczvWs2-Fd6WBhOdNGWx551Dttbd6iQP3ArLZ4svS3dJyToSIm40RwhhcYT_knAawoJbmIJzsAQb0M_HNsfXc1l4xNyN7Ou5UZ4b3g3qKr-b20Q3Tn3LjZ7UXcfZA5MPVIsywCRhQs-GYATQrszlTmvF1INhPrfU3yNjTNWEXFJWsKfFn0F4km9_tAx6Kr6gPgGNsfCRLMlB0lQjUjMGQ",
         "methodArn": "arn:aws:execute-api:ap-northeast-2:565651431982:pagizbj9h1/*/GET/corporates/summary"
     }
-    print(handler(event, None))
+    print(lambda_handler(event, None))
