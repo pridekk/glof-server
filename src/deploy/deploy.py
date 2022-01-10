@@ -83,9 +83,8 @@ config = json.load(open("config.json"))
 
 if __name__ == "__main__":
     version = datetime.now().strftime("%Y%m%d%H%M%S")
-    # version = "20210907100330"
+    # version = "20211229074050"
     zip_lambdas(version)
-    # version = "20211227124549"
     upload_lambdas("dev", version)
     upload_formation("dev")
     update_formation("GLOF-DEV", "dev", version, 'us-east-1')

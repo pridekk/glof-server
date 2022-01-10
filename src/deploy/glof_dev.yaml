@@ -133,6 +133,8 @@ Resources:
         ApiEvent:
           Type: Api
           Properties:
+            Auth:
+              Authorizer: FirebaseAuth
             Path: /areas
             Method: get
             RestApiId: !Ref GlofAPI
@@ -158,6 +160,8 @@ Resources:
         ApiEvent:
           Type: Api
           Properties:
+            Auth:
+              Authorizer: FirebaseAuth
             Path: /locations
             Method: post
             RestApiId: !Ref GlofAPI
@@ -174,7 +178,6 @@ Resources:
         Authorizers:
           FirebaseAuth:
             FunctionArn: !GetAtt FirbaseAuthorizer.Arn
-        DefaultAuthorizer: FirebaseAuth
         UsagePlan:
           CreateUsagePlan: PER_API
           UsagePlanName: glof_api
@@ -187,6 +190,6 @@ Resources:
       EndpointConfiguration: REGIONAL
       Cors:
         AllowMethods: "'POST, GET, OPTIONS'"
-        AllowHeaders: "'X-Forwarded-For, x-api-key'"
+        AllowHeaders: "'X-Forwarded-For, x-api-key, authorization'"
         AllowOrigin: "'*'"
         MaxAge: "'600'"

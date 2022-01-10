@@ -1,4 +1,4 @@
 /src/lambdas/firebase_token/serviceAccountKey.json
 /src/deploy/lambdas/
 /src/deploy/config.json
-/src/lambdas/firebase_token/seed.txt
+/src/lambdas/*/seed.txt
